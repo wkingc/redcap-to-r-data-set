@@ -1,0 +1,138 @@
+---
+bibliography: redcap_to_r_data_set.bib
+biblio-style: apalike
+link-citations: yes
+output:  
+  bookdown::html_document2:
+    theme: default
+    highlight: textmate
+    code_folding: show
+    mathjax: local
+    self_contained: FALSE
+    number_sections: FALSE
+---
+
+# Introduction
+
+Many investigators, project managers, and data managers have turned to REDCap to manage their data [@harris2009metadata; @harris2019redcap].  Eventually, it falls to the statistician to take the REDCap data and load it into their statistical analysis program of choice.  In this presentation, I show how to use the CSV and R script file downloaded from REDCap to create a clean R data set.
+
+This presentation will use the R programming language and assume the user is using Rstudio to compile their R markdown files into HTML [@Rlang2019; @Rstudio].  If you want to follow along with the R markdown, it is downloadable  <a href="https://waderstats.com/rstudio-files/redcap_to_r_data_set/redcap_to_r_data_set.Rmd" target="_blank">here</a>.  The associated bibliography file is <a href="https://waderstats.com/rstudio-files/redcap_to_r_data_set/redcap_to_r_data_set.bib" target="_blank">here</a>.
+
+# Libraries
+
+The libraries <i>knitr</i>, <i>bookdown</i>, <i>kableExtra</i>, and <i>DT</i>, generate the HTML output [@knitr; @bookdown; @kableExtra; @DT].  The <i>Hmisc</i> library is loaded to generate and store variable labels [@Hmisc].
+
+```{r libraries, eval = TRUE, echo = TRUE, results = TRUE, warning = FALSE, message = FALSE}
+package_loader <- function(x, ...) {
+  if (x %in% rownames(installed.packages()) == FALSE) install.packages(x)
+  library(x, ...)
+}
+
+packages <- c("knitr", "bookdown", "kableExtra", "DT", "Hmisc")
+
+invisible(sapply(X = packages, FUN = package_loader, character.only = TRUE))
+```
+
+# REDCap Data Structure
+
+For this presentation, I created two files that mimic the general structure of data exported from REDCap for use in the R programming language.  This structure is accurate as of REDCap version 9.1.0.  While not the focus of this presentation, for the sake of reproducibility, the file used the generate the example data is downloadable <a href="https://waderstats.com/rstudio-files/redcap_to_r_data_set/redcap_to_r_data_set.r" target="_blank">here</a>.
+
+The first file is a flat-file of comma-separated values (CSV).  Below is a display of the example data downloaded <a href="https://waderstats.com/rstudio-files/redcap_to_r_data_set/fromREDCap_DATA_2019-12-05_1111.csv" target="_blank">here</a>.  Of note, all of the factor variables, such as sex, are numerically coded.  There are also indicators for ambiguous data (666) and missing data (999).
+
+```{r exampleData, eval = TRUE, echo = TRUE, results = TRUE, warning = FALSE, message = FALSE}
+d_csv <- read.csv(file = "fromREDCap_DATA_2019-12-05_1111.csv", stringsAsFactors = FALSE)
+
+d_csv_DT <- datatable(d_csv,
+          rownames = FALSE,
+          class = 'cell-border stripe',
+          caption = htmltools::tags$caption(
+            style = 'caption-side: bottom; text-align: center;',
+            '', htmltools::em('The CSV file generated with REDCap for use with the R programming language.  Of note, all of the factor variables are numerically coded.')
+          ),
+          filter = 'top',
+          options = list(pageLength = 5,
+                         autoWidth = TRUE,
+                         scrollX = TRUE
+          )
+)
+
+d_csv_DT
+```
+
+The second file is an R script that codes the data for use in R.  The contents of the example REDCap script file used in this presentation are shown below and downloadable <a href="https://waderstats.com/rstudio-files/redcap_to_r_data_set/fromREDCap_R_2019-12-05_1111.r" target="_blank">here</a>.  We see that the <i>Hmisc</i> library is used to set the labels, and none of the numerically coded variables are stored as factors, but rather as new variables with <i>.factor</i> appended.
+
+```{r exampleScript, eval = TRUE, echo = TRUE, results = TRUE, warning = FALSE, message = FALSE}
+d_script <- readLines("fromREDCap_R_2019-12-05_1111.r")
+
+cat(paste(d_script, "\n", sep = ""))
+```
+
+# REDCap Script File Clean-up and Parsing
+
+To set up the data, we want to parse and evaluate the script file with the primary goal of removing the appended <i>.factor</i>.  The function <b>redcap_to_r_data_set</b> does just that.  It takes two arguments; The first is <i>redcap_data_file</i>, which is the path to the REDCap data set.  The second is <i>redcap_script_file</i>, which is the path to the REDCap script file.
+
+```{r scriptCleanFun, eval = TRUE, echo = TRUE, results = TRUE, warning = FALSE, message = FALSE}
+redcap_to_r_data_set <- function(redcap_data_file, redcap_script_file) {
+  # Read in the data and script file.
+  redcap_data <- read.csv(file = redcap_data_file, stringsAsFactors = FALSE)
+  redcap_script <- readLines(redcap_script_file)
+
+  # We want to remove the appended .factor, but since releveling the numerically coded data erases the labels, we need to reorder the file so that the labels are last.
+    # Every line in the script file that uses the factor() function
+    redcap_factor <- redcap_script[grep("factor\\(", redcap_script)]
+    
+    # Every line in the script file that uses the levels() function
+    redcap_levels <- redcap_script[grep("levels\\(", redcap_script)]
+    
+    # Every line in the script file that begins with the label function
+    redcap_label <- redcap_script[grep("^label\\(", redcap_script)]
+    
+    # Reorder the chunks in the script file.
+    redcap_reorder <- c(redcap_factor, "", redcap_levels, "", redcap_label)
+    
+    # Remove the appended .factor.
+    redcap_no_append <- gsub("\\.factor", "", redcap_reorder)
+    
+  # REDCap defaults to calling the data 'data'.  Before evaluating, we need to change this to what the data is named here.
+  redcap_rename <- gsub("data\\$", "redcap_data\\$", redcap_no_append)
+
+  # Now we can safely evaluate the script file.
+  eval(parse(text = redcap_rename))
+  
+  return(redcap_data)
+}
+
+d <- redcap_to_r_data_set(redcap_data_file = "fromREDCap_DATA_2019-12-05_1111.csv", redcap_script_file = "fromREDCap_R_2019-12-05_1111.r")
+```
+
+Below is the completed R data set after cleaning and parsing the REDCap script file.
+
+```{r scriptCleanDT, eval = TRUE, echo = TRUE, results = TRUE, warning = FALSE, message = FALSE}
+d_DT <- datatable(d,
+          rownames = FALSE,
+          class = 'cell-border stripe',
+          caption = htmltools::tags$caption(
+            style = 'caption-side: bottom; text-align: center;',
+            '', htmltools::em('The complete R data set after cleaning and parsing the REDCap script file.')
+          ),
+          filter = 'top',
+          options = list(pageLength = 5,
+                         autoWidth = TRUE,
+                         scrollX = TRUE
+          )
+)
+
+d_DT
+```
+
+Printing the data summary shows that variable coding worked as expected.  The label accessor function shows that the labels were accurately created.
+
+```{r scriptCleanSummary, eval = TRUE, echo = TRUE, results = TRUE, warning = FALSE, message = FALSE}
+summary(d)
+label(d)
+```
+
+# References
+
+<!-- This is needed to resize iframe content. Please ignore if duplicationg this R markdown file --> 
+<script type="text/javascript" src="https://www.waderstats.com/wp-includes/js/iframe-resizer/js/iframeResizer.contentWindow.min.js" defer></script>
