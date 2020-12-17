@@ -132,6 +132,12 @@ summary(d)
 label(d)
 ```
 
+# Session Info
+
+```{r sessionInfo, eval = TRUE, echo = TRUE, results = TRUE, warning = FALSE, message = FALSE}
+sessionInfo()
+```
+
 # References
 
 <!-- This is needed to resize iframe content. Please ignore if duplicationg this R markdown file --> 
