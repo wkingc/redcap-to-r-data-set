@@ -34,9 +34,9 @@ library("Hmisc")
 
 # REDCap Data Structure
 
-For this presentation, I created two files that mimic the general structure of data exported from REDCap for use in the R programming language.  This structure is accurate as of REDCap version 9.1.0.  While not the focus of this presentation, for the sake of reproducibility, the file used the generate the example data is downloadable <a href="https://github.com/wkingc/redcap_to_r_data_set/blob/main/redcap_to_r_data_set.R" target="_blank">here</a>.
+For this presentation, I created two files that mimic the general structure of data exported from REDCap for use in the R programming language.  This structure is accurate as of REDCap version 9.1.0.  While not the focus of this presentation, for the sake of reproducibility, the file used the generate the example data is downloadable <a href="https://github.com/wkingc/redcap-to-r-data-set/blob/main/redcap_to_r_data_set.R" target="_blank">here</a>.
 
-The first file is a flat-file of comma-separated values (CSV).  Below is a display of the example data downloaded <a href="https://github.com/wkingc/redcap_to_r_data_set/blob/main/fromREDCap_DATA_2019-12-05_1111.csv" target="_blank">here</a>.  Of note, all of the factor variables, such as sex, are numerically coded.  There are also indicators for ambiguous data (666) and missing data (999).
+The first file is a flat-file of comma-separated values (CSV).  Below is a display of the example data downloaded <a href="https://github.com/wkingc/redcap-to-r-data-set/blob/main/fromREDCap_DATA_2019-12-05_1111.csv" target="_blank">here</a>.  Of note, all of the factor variables, such as sex, are numerically coded.  There are also indicators for ambiguous data (666) and missing data (999).
 
 ```{r exampleData, eval = TRUE, echo = TRUE, results = TRUE, warning = FALSE, message = FALSE}
 d_csv <- read.csv(file = "fromREDCap_DATA_2019-12-05_1111.csv", stringsAsFactors = FALSE)
@@ -60,7 +60,7 @@ d_csv_DT <- datatable(
 d_csv_DT
 ```
 
-The second file is an R script that codes the data for use in R.  The contents of the example REDCap script file used in this presentation are shown below and downloadable <a href="https://github.com/wkingc/redcap_to_r_data_set/blob/main/fromREDCap_R_2019-12-05_1111.R" target="_blank">here</a>.  We see that the <i>Hmisc</i> library is used to set the labels, and none of the numerically coded variables are stored as factors, but rather as new variables with <i>.factor</i> appended.
+The second file is an R script that codes the data for use in R.  The contents of the example REDCap script file used in this presentation are shown below and downloadable <a href="https://github.com/wkingc/redcap-to-r-data-set/blob/main/fromREDCap_R_2019-12-05_1111.R" target="_blank">here</a>.  We see that the <i>Hmisc</i> library is used to set the labels, and none of the numerically coded variables are stored as factors, but rather as new variables with <i>.factor</i> appended.
 
 ```{r exampleScript, eval = TRUE, echo = TRUE, results = TRUE, warning = FALSE, message = FALSE}
 d_script <- readLines("fromREDCap_R_2019-12-05_1111.R")
