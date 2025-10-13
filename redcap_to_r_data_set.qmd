@@ -1,17 +1,30 @@
 ---
 title: "REDCap to R Data Set"
 author: "Wade K. Copeland"
+date: last-modified
+date-format: "MMMM DD, YYYY"
 bibliography: redcap_to_r_data_set.bib
-biblio-style: apalike
-link-citations: yes
-output:  
-  bookdown::html_document2:
-    theme: default
-    highlight: textmate
-    code_folding: show
-    mathjax: default
-    self_contained: True
-    number_sections: FALSE
+format:
+    html:
+        embed-resources: true
+        code-overflow: wrap
+        page-layout: full
+        code-fold: false
+        toc: true
+        toc-location: left
+        toc-depth: 4
+        toc-expand: 4
+        html-math-method: katex
+        code-tools:
+            source: true
+            toggle: true
+            caption: "Source Code"
+number-sections: false
+appendix-style: plain
+engine: jupyter
+knitr:
+    opts_knit:
+        root.dir: "./"
 ---
 
 # Introduction
@@ -135,7 +148,7 @@ summary(d)
 label(d)
 ```
 
-# Session Info
+# R Session Info
 
 ```{r sessionInfo, eval = TRUE, echo = TRUE, results = TRUE, warning = FALSE, message = FALSE}
 sessionInfo()
