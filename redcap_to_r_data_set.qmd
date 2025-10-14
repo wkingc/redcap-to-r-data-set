@@ -32,7 +32,7 @@ knitr:
 
 Many investigators, project managers, and data managers have turned to REDCap to manage their data [@harris2009metadata; @harris2019redcap].  Eventually, it falls to the statistician to take the REDCap data and load it into their statistical analysis program of choice.  In this tutorial I show how to use the CSV and R script file downloaded from REDCap to create a clean R data set.
 
-All of the files needed to reproduce these results can be downloaded from the Git repository <a href="https://github.com/wkingc/redcap-to-r-data-set" target="_blank">https://github.com/wkingc/redcap-to-r-data-set</a>.
+This tutorial uses the R programming language [@Rlang2019].  All of the files needed to reproduce these results can be downloaded from the Git repository <a href="https://github.com/wkingc/redcap-to-r-data-set" target="_blank">https://github.com/wkingc/redcap-to-r-data-set</a>.
 
 # Libraries
 
