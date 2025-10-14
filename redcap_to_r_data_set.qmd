@@ -3,6 +3,7 @@ title: "REDCap to R Data Set"
 author: "Wade K. Copeland"
 date: last-modified
 date-format: "MMMM DD, YYYY"
+output-file: index.html
 bibliography: redcap_to_r_data_set.bib
 format:
     html:
