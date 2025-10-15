@@ -4,7 +4,7 @@ author: "Wade K. Copeland"
 date: last-modified
 date-format: "MMMM DD, YYYY"
 output-file: index.html
-bibliography: redcap_to_r_data_set.bib
+bibliography: references.bib
 format:
     html:
         embed-resources: true
